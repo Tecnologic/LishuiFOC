@@ -34,6 +34,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #if (DISPLAY_TYPE == DISPLAY_TYPE_KINGMETER_618U)
  #define KM_MAX_RXBUFF 6
+ #define KM5S_NM_RXBUFF 6
  #define KM_MAX_TXBUFF 8
 #endif
 
@@ -41,6 +42,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #if (DISPLAY_TYPE == DISPLAY_TYPE_KINGMETER_901U)
  #define KM_MAX_RXBUFF 20
  #define KM5S_NM_RXBUFF 15 // KM5S RX-Buffer length for normal mode
+ #define KM_MAX_TXBUFF 13
+#endif
+
+#if (DISPLAY_TYPE == DISPLAY_TYPE_FISCHER)
+ #define KM_MAX_RXBUFF 20
+ #define KM5S_NM_RXBUFF 14  //19 // Fischer RX-Buffer length for normal mode
  #define KM_MAX_TXBUFF 13
 #endif
 

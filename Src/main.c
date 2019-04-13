@@ -362,7 +362,7 @@ int main(void)
 	  	  if(ui32_tim1_counter>800){
 
 
-	  		sprintf_(buffer, "%d, %d, %d, %d, %d, %d, %d, %d\r\n", q31_i_q_fil>>3, q31_u_abs , uint16_current_target, TIM1->CCR4, i16_ph2_current, temp4, temp5, char_dyn_adc_state);
+	  		sprintf_(buffer, "%d, %d, %d, %d, %d, %d, %d, %d\r\n", q31_i_q_fil>>3, q31_u_abs , uint16_current_target, TIM1->CCR4, ui16_reg_adc_value, temp4, temp5, char_dyn_adc_state);
 	 	 // temp1: iq, temp3: dutycycle, temp6: timer1 value at start injec. callback, temp5: timer 1 value after angle interpolation, temp4: timer1 value after debug-angle, temp2: debug-angle in degree
 	  	 i=0;
 		  while (buffer[i] != '\0')
