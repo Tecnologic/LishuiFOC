@@ -78,7 +78,7 @@ void FOC_calculation(int16_t int16_i_as, int16_t int16_i_bs, q31_t q31_teta, int
 
 
 	// Park transformation
-	arm_park_q31(q31_i_alpha, q31_i_beta, &q31_i_d, &q31_i_q, sinevalue, cosinevalue);
+	arm_park_q31(-q31_i_alpha, q31_i_beta, &q31_i_d, &q31_i_q, sinevalue, cosinevalue);
 
 
 	q31_i_q_fil -= q31_i_q_fil>>3;
@@ -117,10 +117,10 @@ void FOC_calculation(int16_t int16_i_as, int16_t int16_i_bs, q31_t q31_teta, int
 	//q31_u_d=0;
 	//arm_sin_cos_q31(q31_teta, &sinevalue, &cosinevalue);
 	//inverse Park transformation
-	arm_inv_park_q31(q31_u_d, q31_u_q, &q31_u_alpha, &q31_u_beta, -sinevalue, cosinevalue);
+	arm_inv_park_q31(q31_u_d, q31_u_q, &q31_u_alpha, &q31_u_beta, sinevalue, cosinevalue);
 
 	//>>11 because of 2048 max dutycycle, voltage values in mV, amps in mA
-	observer_update((q31_u_alpha*adcData[0]*CAL_V)>>11, (q31_u_beta*adcData[0]*CAL_V)>>11, q31_i_alpha*CAL_I, q31_i_beta*CAL_I , &q31_x1_obs, &q31_x2_obs, &q31_e_alpha_obs, &q31_e_beta_obs);
+	observer_update((q31_u_alpha*adcData[0]*CAL_V)>>11, (q31_u_beta*adcData[0]*CAL_V)>>11, -q31_i_alpha*CAL_I, -q31_i_beta*CAL_I , &q31_x1_obs, &q31_x2_obs, &q31_e_alpha_obs, &q31_e_beta_obs);
 
 	arm_park_q31(q31_e_alpha_obs, q31_e_beta_obs, &q31_e_d_obs, &q31_e_q_obs, sinevalue, cosinevalue);
 
@@ -180,10 +180,10 @@ q31_t PI_control_i_d (q31_t ist, q31_t soll)
     static q31_t q31_d_dc = 0;
 
     q31_p=((soll - ist)*P_FACTOR_I_D)>>4;
-    q31_d_i+=((soll - ist)*I_FACTOR_I_D)>>4;
+    q31_d_i+=((soll - ist)>>I_FACTOR_I_D);
 
-    if (q31_d_i<-127)q31_d_i=-127;
-    if (q31_d_i>127)q31_d_i=127;
+    if (q31_d_i<-100)q31_d_i=-100;
+    if (q31_d_i>100)q31_d_i=100;
     //avoid too big steps in one loop run
     if (q31_p+q31_d_i>q31_d_dc+5) q31_d_dc+=5;
     else if  (q31_p+q31_d_i<q31_d_dc-5) q31_d_dc-=5;

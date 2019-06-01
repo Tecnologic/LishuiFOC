@@ -310,7 +310,7 @@ int main(void)
 
 
 		  	//Control id
-		  	q31_u_d = -PI_control_i_d(q31_i_d_fil>>3, 0); //control direct current to zero
+		  	q31_u_d = PI_control_i_d(q31_i_d_fil>>3, 0); //control direct current to zero
 
 		  	//limit voltage in rotating frame, refer chapter 4.10.1 of UM1052
 
@@ -404,7 +404,7 @@ int main(void)
 	  	  if(ui32_tim1_counter>800){
 
 
-	  		sprintf_(buffer, "%d, %d, %d, %d, %d, %d, %d, %d\r\n", (int16_t)q31_i_q_fil>>3, (int16_t)((q31_i_q_fil>>3)*q31_u_abs/_T) , uint16_current_target, (int16_t)q31_u_abs, adcData[0], adcData[2],(int16_t)q31_e_d_obs, ui16_timertics);
+	  		sprintf_(buffer, "%d, %d, %d, %d, %d, %d, %d, %d\r\n", (int16_t)q31_i_q_fil>>3, (int16_t)((q31_i_q_fil>>3)*q31_u_abs/_T) , uint16_current_target, (int16_t)q31_u_abs, adcData[0],(int16_t)q31_u_d,(int16_t)q31_e_d_obs,(int16_t)q31_i_d_fil>>3);
 	  	//	sprintf_(buffer, "%d, %d, %d, %d, %d, %d, %d, %d\r\n",(uint16_t)adcData[0],(uint16_t)adcData[1],(uint16_t)adcData[2],(uint16_t)adcData[3],(uint16_t)(adcData[4]),(uint16_t)(adcData[5]),(uint16_t)(adcData[6]),(uint16_t)(adcData[7])) ;
 	  	 i=0;
 		  while (buffer[i] != '\0')
