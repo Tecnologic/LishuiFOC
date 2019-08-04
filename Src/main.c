@@ -418,9 +418,9 @@ int main(void) {
 
 	  }
 */
-	  /*
+
 		if(ui8_debug_state==3 && ui8_UART_TxCplt_flag){
-	        sprintf_(buffer, "%d, %d, %d, %d\r\n", e_log[k][0], e_log[k][1], e_log[k][2]>>24,e_log[k][3]>>24);
+	        sprintf_(buffer, "%d, %d, %d, %d\r\n", e_log[k][0], e_log[k][1], e_log[k][2],e_log[k][3]>>24);
 			i=0;
 			while (buffer[i] != '\0')
 			{i++;}
@@ -431,11 +431,11 @@ int main(void) {
 				k=0;
 				ui8_debug_state=0;
 			}
-		}*/
+		}
 	  //print values for debugging
 	  	  if(ui32_tim1_counter>800){
 
-
+/*
 	  	//	sprintf_(buffer, "%d, %d, %d, %d, %d, %d, %d, %d\r\n", (int16_t)q31_i_q_fil>>3, (int16_t)((q31_i_q_fil>>3)*q31_u_abs/_T) , uint16_current_target, (int16_t)q31_u_abs,  (int16_t)temp1, q31_teta_obs,(int16_t)q31_e_d_obs, q31_delta_teta);
 	  		sprintf_(buffer, "%d, %d, %d, %d, %d\r\n",(uint16_t)adcData[0],(uint16_t)adcData[1],(uint16_t)adcData[2],(uint16_t)adcData[3],(uint16_t)(adcData[4])) ;
 	  	 i=0;
