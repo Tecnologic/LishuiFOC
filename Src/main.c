@@ -947,21 +947,19 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
 	if (htim == &htim3) {
 		HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_SET);
-		//HAL_GPIO_TogglePin(LED_GPIO_Port, LED_Pin);
+
+		//switch to sensorless, if PAS Pin is Low, feature for debugging.
 		if(HAL_GPIO_ReadPin(PAS_GPIO_Port, PAS_Pin))
 		{
 			// call FOC procedure
 			FOC_calculation(i16_ph1_current, i16_ph2_current, q31_rotorposition_absolute, uint16_current_target);
-			//q31_teta_obs = q31_rotorposition_absolute;
-			//q31_ed_i = q31_delta_teta<<1; //because 8 kHz control loop speed
+
 		}
 
 		else{
 		FOC_calculation(i16_ph1_current, i16_ph2_current, q31_rotorposition_absolute, uint16_current_target);
 		}
-		FOC_calculation(i16_ph1_current, i16_ph2_current, q31_rotorposition_absolute, uint16_current_target);
 
-		//q31_teta_obs += q31_delta_teta_obs;
 
 		//set PWM
 		TIM1->CCR1 =  (uint16_t) switchtime[0];

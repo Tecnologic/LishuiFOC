@@ -11,7 +11,7 @@
 #include <arm_math.h>
 //exportetd functions
 void FOC_calculation(int16_t int16_i_as, int16_t int16_i_bs, q31_t q31_teta, int16_t int16_i_q_target);
-void observer_update(long long v_alpha, long long v_beta, long long i_alpha, long long i_beta, volatile long long *x1, volatile long long *x2, q31_t *e_alpha, q31_t *e_beta);
+void observer_update(long long v_a, long long v_b, long long v_c, long long i_a, long long i_b );
 q31_t atan2_LUT(q31_t e_alpha, q31_t e_beta);
 q31_t PI_control_i_q (q31_t ist, q31_t soll);
 q31_t PI_control_i_d (q31_t ist, q31_t soll);
