@@ -433,28 +433,16 @@ int main(void) {
 			}
 		}
 	  //print values for debugging
-	  	  if(ui32_tim1_counter>800){
+	  	  if(ui32_tim1_counter>200){
 
-/*
+
 	  	//	sprintf_(buffer, "%d, %d, %d, %d, %d, %d, %d, %d\r\n", (int16_t)q31_i_q_fil>>3, (int16_t)((q31_i_q_fil>>3)*q31_u_abs/_T) , uint16_current_target, (int16_t)q31_u_abs,  (int16_t)temp1, q31_teta_obs,(int16_t)q31_e_d_obs, q31_delta_teta);
-	  		sprintf_(buffer, "%d, %d, %d, %d, %d\r\n",(uint16_t)adcData[0],(uint16_t)adcData[1],(uint16_t)adcData[2],(uint16_t)adcData[3],(uint16_t)(adcData[4])) ;
+	  		sprintf_(buffer, "%d, %d, %d, %d, %d, %d, %d, %d, %d\r\n",ui8_hall_state, (uint16_t)adcData[0],(uint16_t)adcData[1],(uint16_t)adcData[2],(uint16_t)adcData[3],(uint16_t)(adcData[4]),uint16_current_target, (int16_t)q31_i_q_fil>>3, (int16_t)q31_u_abs) ;
 	  	 i=0;
 		  while (buffer[i] != '\0')
 		  {i++;}
 		 HAL_UART_Transmit_DMA(&huart1, (uint8_t *)&buffer, i);
-	  	/* if (ui8_print_flag==1){
-	  		ui8_print_flag=2;
 
-	  		 for(j=0; j<255; j++){
-	  		sprintf_(buffer, "%d, %d, %d, %d\r\n", angle[j][0] , angle[j][1], angle[j][2], angle[j][3]);
-		  i=0;
-		  while (buffer[i] != '\0')
-		  {i++;}
-		 HAL_UART_Transmit_DMA(&huart1, (uint8_t *)&buffer, i);
-		 HAL_Delay(5);
-
-	  		 }
-	  	 }*/
 		  ui32_tim1_counter=0;
 		  ui8_print_flag=0;
 	  	  }
@@ -794,7 +782,7 @@ static void MX_TIM3_Init(void)
   htim3.Instance = TIM3;
   htim3.Init.Prescaler = 0;
   htim3.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim3.Init.Period = 2*_T;
+  htim3.Init.Period = 7813;   // to get frequency of 2^13 Hz
   htim3.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim3.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
   if (HAL_TIM_Base_Init(&htim3) != HAL_OK)
