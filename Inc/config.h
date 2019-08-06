@@ -34,14 +34,13 @@
 #define OFFSET_B 1950 //1022				//Offset of current sensing phase B
 #define OFFSET_C 1920 //1042				//Offset of current sensing phase C
 
-#define CAL_V 7LL//  *10^6  0.000007				// 1V / 40 digits ADC, *1/Sqrt(3) /2048 max DutyCycle
-#define CAL_I 5LL// *10^2   0.05					// 1A / 20 digits ADC
+#define CAL_V 122LL//  *10^6  0.000007				// 1V / 40 digits ADC, *1/Sqrt(3) /2048 max DutyCycle ohne Wurzel drei 122, mit ca.70
+#define CAL_I 50LL// *10^2   0.05					// 1A / 20 digits ADC
 
-//Constants for Motor model of observer an speed PLL
-#define INDUCTANCE	12LL//  *10^4 0.0012			//H = V*s/A
-#define RESISTANCE 3500LL// *10^4  0.35				//Ohm = V/A
-#define FLUX_LINKAGE 17000LL// *10^6  0.017			//V*s/rad
-#define GAMMA 24LL
+//Constants for Motor model of observer
+#define INDUCTANCE	12LL//  *10^4 0.0012			//H = V*s/A Values for BIONX, update for shenyi needed
+#define RESISTANCE 3500LL// *10^4  0.35				//Ohm = V/A Values for BIONX, update for shenyi needed
+
 
 
 #define _T 2048
