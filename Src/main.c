@@ -265,7 +265,7 @@ int main(void) {
 //PWM Mode 1: Interrupt at counting down.
 
     //TIM1->BDTR |= 1L<<15;
-   // TIM1->BDTR &= ~(1L<<15); //reset MOE (Main Output Enable) bit to disable PWM output
+    //TIM1->BDTR &= ~(1L<<15); //reset MOE (Main Output Enable) bit to disable PWM output
     // Start Timer 2
        if(HAL_TIM_Base_Start_IT(&htim2) != HAL_OK)
          {
@@ -401,23 +401,7 @@ int main(void) {
 
 	  //enable PWM output, if power is wanted
 	  if (uint16_current_target>0)TIM1->BDTR |= 1L<<15; //set MOE bit
-/*
-	  if(q31_rotorposition_absolute>>24!=angle_old){
-	  			angle_old = q31_rotorposition_absolute>>24;
 
-	  			//buffer[0]=(char)(temp1);
-	  			//buffer[1]=(q31_teta_obs>>24);
-	  			buffer[0]=(char)(((atan2((double)temp2,(double)temp1)+3.1416)*40));
-	  			buffer[1]=(char)(((atan2((double)temp4,(double)temp3)+3.1416)*40));
-	  			buffer[2]=(char)(angle_old+128);
-	  			//buffer[3]=(char)temp4;
-	  			//buffer[4]=0xFF;
-	  			//q31_teta_obs=(q31_t)((float)buffer[0]/128.0*2147483648.0+1073741824.0);
-	  		HAL_UART_Transmit_DMA(&huart1, (uint8_t *)&buffer, 3);
-
-
-	  }
-*/
 
 		if(ui8_debug_state==3 && ui8_UART_TxCplt_flag){
 	        sprintf_(buffer, "%d, %d, %d, %d\r\n", e_log[k][0], e_log[k][1], e_log[k][2],e_log[k][3]>>24);
@@ -433,16 +417,16 @@ int main(void) {
 			}
 		}
 	  //print values for debugging
-	  	  if(ui32_tim1_counter>200){
+	  	  if(ui32_tim1_counter>800){
 
-
+/*
 	  	//	sprintf_(buffer, "%d, %d, %d, %d, %d, %d, %d, %d\r\n", (int16_t)q31_i_q_fil>>3, (int16_t)((q31_i_q_fil>>3)*q31_u_abs/_T) , uint16_current_target, (int16_t)q31_u_abs,  (int16_t)temp1, q31_teta_obs,(int16_t)q31_e_d_obs, q31_delta_teta);
 	  		sprintf_(buffer, "%d, %d, %d, %d, %d, %d, %d, %d, %d\r\n",ui8_hall_state, (uint16_t)adcData[0],(uint16_t)adcData[1],(uint16_t)adcData[2],(uint16_t)adcData[3],(uint16_t)(adcData[4]),uint16_current_target, (int16_t)q31_i_q_fil>>3, (int16_t)q31_u_abs) ;
 	  	 i=0;
 		  while (buffer[i] != '\0')
 		  {i++;}
 		 HAL_UART_Transmit_DMA(&huart1, (uint8_t *)&buffer, i);
-
+*/
 		  ui32_tim1_counter=0;
 		  ui8_print_flag=0;
 	  	  }
@@ -1090,7 +1074,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 	if(GPIO_Pin == GPIO_PIN_0||GPIO_Pin == GPIO_PIN_1||GPIO_Pin == GPIO_PIN_2) //check for right interrupt source
 	{
 	ui8_hall_state = GPIOA->IDR & 0b111; //Mask input register with Hall 1 - 3 bits
-
+	temp5=ui8_hall_state;
 	ui16_tim2_recent = __HAL_TIM_GET_COUNTER(&htim2); // read in timertics since last hall event
 
 

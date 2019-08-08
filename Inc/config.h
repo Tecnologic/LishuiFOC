@@ -35,13 +35,13 @@
 #define OFFSET_C 1920 //1042				//Offset of current sensing phase C
 
 #define CAL_V 122LL//  *10^6  0.000007				// 1V / 40 digits ADC, *1/Sqrt(3) /2048 max DutyCycle ohne Wurzel drei 122, mit ca.70
-#define CAL_I 50LL// *10^2   0.05					// 1A / 20 digits ADC
+#define CAL_I 5LL// *10^2   0.05					// 1A / 20 digits ADC
 
 //Constants for Motor model of observer
-#define INDUCTANCE	12LL//  *10^4 0.0012			//H = V*s/A Values for BIONX, update for shenyi needed
-#define RESISTANCE 3500LL// *10^4  0.35				//Ohm = V/A Values for BIONX, update for shenyi needed
+#define INDUCTANCE	19LL     //For shenyi 185µH, for BionX 1200 µH 12LL//  *10^4 0.0012			//H = V*s/A Values for BIONX, update for shenyi needed
+#define RESISTANCE 11700LL   //For shengyi 170mOhm, for BionX 350mOhm 3500LL// *10^4  0.35				//Ohm = V/A Values for BIONX, update for shenyi needed
 
-
+#define HYST 500
 
 #define _T 2048
 

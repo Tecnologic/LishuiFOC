@@ -31,13 +31,14 @@ q31_t fl_e_alpha_obs;
 q31_t fl_e_beta_obs;
 q31_t e_log[400][4];
 
-q31_t q31_ed_i = 0; //integral part of observer ed control
+char hall_state_obs=0;
+char flux_state_a=0;
+char flux_state_b=0;
+char flux_state_c=0;
 
 
 
-q31_t q31_e_q_obs = 0;
-q31_t q31_e_d_obs = 0;
-q31_t q31_e_d_obs_fil = 0;
+
 
 char PI_flag=0;
 char Obs_flag=0;
@@ -152,8 +153,8 @@ void FOC_calculation(int16_t int16_i_as, int16_t int16_i_bs, q31_t q31_teta, int
 	if(!HAL_GPIO_ReadPin(PAS_GPIO_Port, PAS_Pin)&&ui8_debug_state==0)
 			{
 		e_log[z][0]=temp1;
-		e_log[z][1]=temp2;
-		e_log[z][2]=temp3;
+		e_log[z][1]=temp2;//temp4;
+		e_log[z][2]=temp3;//temp5;
 		e_log[z][3]=q31_rotorposition_absolute;
 		z++;
 		if (z>399)
@@ -307,4 +308,18 @@ void observer_update(long long v_a, long long v_b, long long v_c, long long i_a,
 	  temp1=fa_int;
 	  temp2=fb_int;
 	  temp3=fc_int;
+
+	  if (fa_int>HYST)flux_state_a=1;
+	  if (fa_int<-HYST)flux_state_a=0;
+
+	  if (fb_int>HYST)flux_state_b=1;
+	  if (fb_int<-HYST)flux_state_b=0;
+
+	  if (fc_int>HYST)flux_state_c=1;
+	  if (fc_int<-HYST)flux_state_c=0;
+
+	  hall_state_obs= flux_state_a + (flux_state_b<<1) + (flux_state_c<<2);
+	  temp4=hall_state_obs;
+
+
 }
