@@ -41,7 +41,9 @@
 #define INDUCTANCE	19LL     //For shenyi 185µH, for BionX 1200 µH 12LL//  *10^4 0.0012			//H = V*s/A Values for BIONX, update for shenyi needed
 #define RESISTANCE 11700LL   //For shengyi 170mOhm, for BionX 350mOhm 3500LL// *10^4  0.35				//Ohm = V/A Values for BIONX, update for shenyi needed
 
-#define HYST 500
+#define HYST 500   //Hysteresis for Fluxstate
+#define TVIR 2		// Time constant for fast loop low pass filter
+#define EINVAVIR 13		// exponent of A = 1/2^13 :T = A/(1-A)*128.00us (FOC loop running @8kHz)
 
 #define _T 2048
 

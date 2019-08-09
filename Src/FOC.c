@@ -165,7 +165,7 @@ void FOC_calculation(int16_t int16_i_as, int16_t int16_i_bs, q31_t q31_teta, int
 	//call SVPWM calculation
 	svpwm(q31_u_alpha, q31_u_beta);
 	//temp6=__HAL_TIM_GET_COUNTER(&htim1);
-	observer_update((long long)switchtime[0]*(long long)adcData[0]*CAL_V, (long long)switchtime[1]*(long long)adcData[0]*CAL_V, (long long)switchtime[2]*(long long)adcData[0]*CAL_V, (long long)(int16_i_as)*CAL_I, (long long)(int16_i_bs)*CAL_I);
+	observer_update((long long)(switchtime[0]-(_T>>1))*(long long)adcData[0]*CAL_V, (long long)(switchtime[1]-(_T>>1))*(long long)adcData[0]*CAL_V, (long long)(switchtime[2]-(_T>>1))*(long long)adcData[0]*CAL_V, (long long)(int16_i_as)*CAL_I, (long long)(int16_i_bs)*CAL_I);
 
 
 }
@@ -277,9 +277,9 @@ void observer_update(long long v_a, long long v_b, long long v_c, long long i_a,
 	  // Integral (low-pass filter) of (V - IR).
 	  vir_temp = i_a * R;                                  // [+-15] [mV]
 	  vir_temp = v_a - vir_temp;                           // [+-18] [mV]
-	  vir_temp = vir_temp >> dT;                             // [+-16] [uWb]
-	  vir_a -= vir_a>>3;
-	  vir_a += vir_temp>>3;
+	  vir_temp = vir_temp * TVIR;                             // [+-16] [uWb]
+	  vir_a -= vir_a>>EINVAVIR;
+	  vir_a += vir_temp>>EINVAVIR;
 
 	  /*
 	  if(vir_a > VIR_SAT) { vir_a = VIR_SAT; }
@@ -287,15 +287,15 @@ void observer_update(long long v_a, long long v_b, long long v_c, long long i_a,
 	  */
 	  vir_temp = i_b * R;                                  // [+-15] [mV]
 	  vir_temp = v_b - vir_temp;                           // [+-18] [mV]
-	  vir_temp = vir_temp >> dT;                             // [+-16] [uWb]
-	  vir_b -= vir_b>>3;
-	  vir_b += vir_temp>>3;
+	  vir_temp = vir_temp * TVIR;                             // [+-16] [uWb]
+	  vir_b -= vir_b>>EINVAVIR;
+	  vir_b += vir_temp>>EINVAVIR;
 
 	  vir_temp = i_c * R;                                  // [+-15] [mV]
 	  vir_temp = v_c - vir_temp;                           // [+-18] [mV]
-	  vir_temp = vir_temp >> dT;                             // [+-16] [uWb]
-	  vir_c -= vir_c>>3;
-	  vir_c += vir_temp>>3;
+	  vir_temp = vir_temp * TVIR;                             // [+-16] [uWb]
+	  vir_c -= vir_c>>EINVAVIR;
+	  vir_c += vir_temp>>EINVAVIR;
 
 	  // Flux.
 	  fa_int = vir_a - i_a * L;
@@ -305,9 +305,19 @@ void observer_update(long long v_a, long long v_b, long long v_c, long long i_a,
 	  */
 	  fb_int = vir_b - i_b * L;
 	  fc_int = vir_c - i_c * L;
-	  temp1=fa_int;
-	  temp2=fb_int;
-	  temp3=fc_int;
+
+	  temp1= - i_a * L;
+	 // temp2= - i_b * L;
+	  //temp3= - i_c * L;
+
+	  temp2=vir_a;
+	  //temp2=vir_b;
+	  //temp3=vir_c;
+
+	  temp3=fa_int;
+	// temp2=fb_int;
+	// temp3=fc_int;
+
 
 	  if (fa_int>HYST)flux_state_a=1;
 	  if (fa_int<-HYST)flux_state_a=0;
