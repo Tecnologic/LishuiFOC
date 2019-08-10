@@ -30,7 +30,7 @@
 
 #define SPEC_ANGLE  -715827882L//-357913941L		//motor specific angle, refer to chapter 8.3.3 of UM1052.shengyi:-715827882L, 715827882 536870912 357913941L; //357913941 298261617 119304647L // 30° BionX IGH3 motor specific angle, refer to chapter 8.8.3 of UM1052 180° maped to 2^31
 
-#define OFFSET_A 1950 //1025 				//Offset of current sensing phase A
+#define OFFSET_A 1930//1950 //1025 				//Offset of current sensing phase A
 #define OFFSET_B 1950 //1022				//Offset of current sensing phase B
 #define OFFSET_C 1920 //1042				//Offset of current sensing phase C
 
@@ -39,7 +39,7 @@
 
 //Constants for Motor model of observer
 #define INDUCTANCE	19LL     //For shenyi 185µH, for BionX 1200 µH 12LL//  *10^4 0.0012			//H = V*s/A Values for BIONX, update for shenyi needed
-#define RESISTANCE 11700LL   //For shengyi 170mOhm, for BionX 350mOhm 3500LL// *10^4  0.35				//Ohm = V/A Values for BIONX, update for shenyi needed
+#define RESISTANCE  11700LL   //For shengyi 170mOhm, for BionX 350mOhm 3500LL// *10^4  0.35				//Ohm = V/A Values for BIONX, update for shenyi needed
 
 #define HYST 500   //Hysteresis for Fluxstate
 #define TVIR 2		// Time constant for fast loop low pass filter
