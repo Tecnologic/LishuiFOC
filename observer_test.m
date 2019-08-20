@@ -5,20 +5,39 @@ file = fullfile(path, filename);
 % Datei mit ; getrennt einlesen
 data = dlmread(file, ";");
 
-% Erste Zeile ignorieren und die Spalten einzeln speichern
-t = data(2:end, 1);
-ia = data(2:end,2);
-ib = data(2:end,3);
-va = data(2:end,4);
-vb = data(2:end,5);
-hall_angle = data(2:end,6);
-vdc = data(2:end,7);
+stop = 150;
 
-% Einmal plotten bitte
-subplot(2,1,1);
-plot(t,va,t,vb);
-legend("i_{alpha}","i_{beta}");
-subplot(2,1,2);
-plot(t,ia,t,ib);
-legend("v_{alpha}","v_{beta}");
+% Erste Zeile ignorieren und die Spalten einzeln speichern
+t = data(2:stop, 1);
+ia = data(2:stop,2);
+ib = data(2:stop,3);
+va = data(2:stop,4);
+vb = data(2:stop,5);
+hall_angle = data(2:stop,6)*pi/127;
+vdc = data(2:stop,7);
+
+
+function error = observer(x)
+stop = 150;
+r = x(1);
+l = x(2);
+% Back EMF, Integrator
+fa = zeros(stop-1,1);
+fb = zeros(stop-1,1);
+for i = 1:stop-2
+fa(i + 1) = fa(i) + (va(i) - r*ia(i)); 
+fb(i + 1) = fb(i) + (vb(i) - r*ib(i));
+endfor
+fba = fa - (max(fa) + min(fa))/2;
+fbb = fb - (max(fb) + min(fb))/2;
+fa = fba - l*ia;
+fb = fbb - l*ib;
+
+phi = atan2(fa,fb);
+
+error = mean(sin(hall_angle) .* cos(phi) + cos(hall_angle) .* sin(phi));
+end 
+
+fsolve(@observer, [0.1,1e-4]);
+
 
