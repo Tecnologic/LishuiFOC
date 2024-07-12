@@ -74,9 +74,9 @@
 //--------------------------------------------------------------------
 //Speed settings
 #define WHEEL_CIRCUMFERENCE 2200
-#define GEAR_RATIO 98 //11 for BionX IGH3
+#define GEAR_RATIO 88 //11 for BionX IGH3
 #define SPEEDLIMIT 25
-#define PULSES_PER_REVOLUTION 1
+#define PULSES_PER_REVOLUTION 6
 #define SPEEDSOURCE EXTERNAL
 #define SPEEDFILTER 1
 #define SPDSHFT 0
@@ -97,7 +97,7 @@
 
 //---------------------------------------------------------------------
 //Display settings
-#define DISPLAY_TYPE DISPLAY_TYPE_BAFANG
+#define DISPLAY_TYPE DISPLAY_TYPE_KUNTENG
 
 //---------------------------------------------------------------------
 //Regen settings
@@ -107,6 +107,6 @@
 //#define ADC_BRAKE
 
 //---------------------------------------------------------------------
-#define AUTODETECT 0
+#define AUTODETECT 1
 
 #endif /* CONFIG_H_ */
