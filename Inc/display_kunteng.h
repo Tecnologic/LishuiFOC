@@ -58,6 +58,6 @@ typedef struct _lcd_configuration_variables
 #define BATTERY_PACK_VOLTS_0	(LI_ION_CELL_VOLTS_0 * BATTERY_LI_ION_CELLS_NUMBER) * 256
 
 #define ADC_BATTERY_VOLTAGE_K 73 // 0.272 << 8
-#define BATTERY_LI_ION_CELLS_NUMBER 10
+#define BATTERY_LI_ION_CELLS_NUMBER 13
 
 #endif /* DISPLAY_KUNTENG_H_ */

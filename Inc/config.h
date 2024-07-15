@@ -36,17 +36,17 @@
 //#define INDIVIDUAL_MODES
 //#define SPEEDTHROTTLE
 #define SIXSTEPTHRESHOLD 20000
-#define SPEED_PLL 0 //1 for using PLL, 0 for angle extrapolation
-#define P_FACTOR_PLL 10
+#define SPEED_PLL 1 //1 for using PLL, 0 for angle extrapolation
+#define P_FACTOR_PLL 8
 #define I_FACTOR_PLL 10
 
 //----------------------------------------------------------------------
 //Battery bar settings for Kunteng and Bafang Display
-#define BATTERY_LEVEL_1 412000
-#define BATTERY_LEVEL_2 427000
-#define BATTERY_LEVEL_3 447000
-#define BATTERY_LEVEL_4 478000
-#define BATTERY_LEVEL_5 494000
+#define BATTERY_LEVEL_1 432000
+#define BATTERY_LEVEL_2 447000
+#define BATTERY_LEVEL_3 467000
+#define BATTERY_LEVEL_4 498000
+#define BATTERY_LEVEL_5 514000
 
 //----------------------------------------------------------------------
 //PI-control factor settings
@@ -62,14 +62,14 @@
 //#define DIRDET
 #define FRAC_HIGH 30
 #define FRAC_LOW 15
-#define PAS_TIMEOUT 3000
+#define PAS_TIMEOUT 1000
 #define RAMP_END 1200
 
 //---------------------------------------------------------------------
 //Throttle settings
 #define THROTTLE_OFFSET 1250   //only default value, throttle offset is set at startup automatically
 #define THROTTLE_MAX 2850
-#define THROTTLE_OVERRIDE
+//#define THROTTLE_OVERRIDE
 
 //--------------------------------------------------------------------
 //Speed settings
@@ -84,16 +84,16 @@
 //---------------------------------------------------------------------
 //power settings
 #define PH_CURRENT_MAX 1200
-#define BATTERYCURRENT_MAX 14000
+#define BATTERYCURRENT_MAX 10000
 #define REVERSE 1 //1 for normal direction, -1 for reverse
-#define PUSHASSIST_CURRENT 300
-#define VOLTAGE_MIN 1320 //33V
+#define PUSHASSIST_CURRENT 1000
+#define VOLTAGE_MIN 1625 //41.6V 3.20V per cell
 
 //---------------------------------------------------------------------
 //torquesensor settings
-#define TS_COEF 2400
+#define TS_COEF 24000
 #define TS_MODE
-//#define TQONAD1
+#define TQONAD1
 
 //---------------------------------------------------------------------
 //Display settings
@@ -107,6 +107,6 @@
 //#define ADC_BRAKE
 
 //---------------------------------------------------------------------
-#define AUTODETECT 1
+#define AUTODETECT 0
 
 #endif /* CONFIG_H_ */
