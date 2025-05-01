@@ -61,7 +61,7 @@
 #include "display_kingmeter.h"
 #endif
 
-#if (DISPLAY_TYPE == DISPLAY_TYPE_BAFANG)
+#if (DISPLAY_TYPE & DISPLAY_TYPE_BAFANG)
 #include "display_bafang.h"
 #endif
 
@@ -73,6 +73,9 @@
 #include "display_ebics.h"
 #endif
 
+#if (DISPLAY_TYPE == DISPLAY_TYPE_NO2)
+#include "display_No_2.h"
+#endif
 
 #include <arm_math.h>
 /* USER CODE END Includes */
@@ -153,6 +156,7 @@ uint32_t uint32_PAS_fraction= 100;
 uint32_t uint32_SPEED_counter=32000;
 uint32_t uint32_SPEEDx100_cumulated=0;
 uint32_t uint32_PAS=32000;
+uint32_t PAS_IMP_PER_TURN_RECIP_MULTIPLIER = ((1 << 8) / PAS_IMP_PER_TURN);  // recproce multiplier to avoid division in the main loop
 
 q31_t q31_rotorposition_PLL = 0;
 q31_t q31_angle_per_tic = 0;
@@ -227,7 +231,7 @@ KINGMETER_t KM;
 #endif
 
 //variables for display communication
-#if (DISPLAY_TYPE == DISPLAY_TYPE_BAFANG)
+#if (DISPLAY_TYPE & DISPLAY_TYPE_BAFANG)
 BAFANG_t BF;
 #endif
 
@@ -237,7 +241,10 @@ uint8_t ui8_additional_LEV_Page_counter=0;
 uint8_t ui8_LEV_Page_to_send=1;
 #endif
 
-
+//variables for display communication
+#if (DISPLAY_TYPE == DISPLAY_TYPE_NO2)
+No2_t No2;
+#endif
 
 MotorState_t MS;
 MotorParams_t MP;
@@ -248,7 +255,7 @@ PI_control_t PI_id;
 PI_control_t PI_speed;
 
 
-int16_t battery_percent_fromcapacity = 50; 			//Calculation of used watthours not implemented yet
+int32_t battery_percent_fromcapacity = 50; 			//Calculation of used watthours not implemented yet
 int16_t wheel_time = 1000;							//duration of one wheel rotation for speed calculation
 int16_t current_display;							//pepared battery current for display
 
@@ -279,7 +286,7 @@ void HAL_TIM_MspPostInit(TIM_HandleTypeDef *htim);
 void kingmeter_update(void);
 #endif
 
-#if (DISPLAY_TYPE == DISPLAY_TYPE_BAFANG)
+#if (DISPLAY_TYPE & DISPLAY_TYPE_BAFANG)
 void bafang_update(void);
 #endif
 
@@ -457,10 +464,9 @@ int main(void)
 
 #if (DISPLAY_TYPE & DISPLAY_TYPE_KINGMETER || DISPLAY_TYPE & DISPLAY_TYPE_DEBUG)
 	KingMeter_Init (&KM);
-
 #endif
 
-#if (DISPLAY_TYPE == DISPLAY_TYPE_BAFANG)
+#if (DISPLAY_TYPE & DISPLAY_TYPE_BAFANG)
 	Bafang_Init (&BF);
 #endif
 
@@ -473,7 +479,9 @@ int main(void)
 	//  ebics_init();
 #endif
 
-
+#if (DISPLAY_TYPE == DISPLAY_TYPE_NO2)
+	No2_Init(&No2);
+#endif
 	TIM1->CCR1 = 1023; //set initial PWM values
 	TIM1->CCR2 = 1023;
 	TIM1->CCR3 = 1023;
@@ -658,7 +666,7 @@ int main(void)
 
 #endif
 
-#if (DISPLAY_TYPE == DISPLAY_TYPE_BAFANG)
+#if (DISPLAY_TYPE & DISPLAY_TYPE_BAFANG)
 			bafang_update();
 #endif
 
@@ -672,6 +680,9 @@ int main(void)
 			//  process_ant_page(&MS, &MP);
 #endif
 
+#if (DISPLAY_TYPE == DISPLAY_TYPE_NO2)
+			No2_Service(&No2);
+#endif
 			ui8_UART_flag=0;
 		}
 
@@ -708,7 +719,7 @@ int main(void)
 				uint32_PAS_counter =0;
 				ui8_PAS_flag=0;
 				//read in and sum up torque-signal within one crank revolution (for sempu sensor 32 PAS pulses/revolution, 2^5=32)
-				uint32_torque_cumulated -= uint32_torque_cumulated>>5;
+				uint32_torque_cumulated -= (uint32_torque_cumulated*PAS_IMP_PER_TURN_RECIP_MULTIPLIER) >> 8 ;
 #ifdef NCTE
 				if(ui16_throttle<ui16_throttle_offset)uint32_torque_cumulated += (ui16_throttle_offset-ui16_throttle);
 #else
@@ -807,7 +818,7 @@ int main(void)
 
 #ifdef TS_MODE //torque-sensor mode
 				//calculate current target form torque, cadence and assist level
-				int32_temp_current_target = (TS_COEF*(int32_t)(MS.assist_level)* (uint32_torque_cumulated>>5)/uint32_PAS)>>8; //>>5 aus Mittelung über eine Kurbelumdrehung, >>8 aus KM5S-Protokoll Assistlevel 0..255
+				int32_temp_current_target = (TS_COEF*(int32_t)(MS.assist_level)* ((uint32_torque_cumulated*PAS_IMP_PER_TURN_RECIP_MULTIPLIER)>>8)/uint32_PAS)>>8; // >>8 aus KM5S-Protokoll Assistlevel 0..255
 
 				//limit currest target to max value
 				if(int32_temp_current_target>PH_CURRENT_MAX) int32_temp_current_target = PH_CURRENT_MAX;
@@ -821,7 +832,7 @@ int main(void)
 
 #else		// torque-simulation mode with throttle override
 
-#if (DISPLAY_TYPE == DISPLAY_TYPE_BAFANG)
+#if (DISPLAY_TYPE & DISPLAY_TYPE_BAFANG)
 				uint16_mapped_PAS = map(uint32_PAS, RAMP_END, PAS_TIMEOUT, (PH_CURRENT_MAX*(int32_t)(assist_factor[MS.assist_level]))>>8, 0); // level in range 0...5
 #endif
 
@@ -833,7 +844,7 @@ int main(void)
 				uint16_mapped_PAS = map(uint32_PAS, RAMP_END, PAS_TIMEOUT, (PH_CURRENT_MAX*(int32_t)(MS.assist_level-1))>>2, 0); // level in range 1...5
 #endif
 
-#if (DISPLAY_TYPE == DISPLAY_TYPE_KINGMETER_901U)
+#if (DISPLAY_TYPE == DISPLAY_TYPE_KINGMETER_901U||DISPLAY_TYPE == DISPLAY_TYPE_NO2)
 				uint16_mapped_PAS = map(uint32_PAS, RAMP_END, PAS_TIMEOUT, ((PH_CURRENT_MAX*(int32_t)(MS.assist_level)))>>8, 0); // level in range 0...255
 #endif
 
@@ -925,7 +936,7 @@ int main(void)
 
 
 
-#else // end speedthrottle
+#else // else speedthrottle
 					int32_temp_current_target=uint16_mapped_throttle;
 #endif  //end speedthrottle
 
@@ -951,9 +962,9 @@ int main(void)
 #if (DISPLAY_TYPE & DISPLAY_TYPE_KINGMETER || DISPLAY_TYPE & DISPLAY_TYPE_DEBUG)
 			if(KM.DirectSetpoint!=-1)int32_temp_current_target=(KM.DirectSetpoint*PH_CURRENT_MAX)>>7;
 #endif
-			MS.i_q_setpoint=map(MS.Temperature, 120,130,int32_temp_current_target,0); //ramp down power with temperature to avoid overheating the motor
+			MS.i_q_setpoint=map(MS.Temperature, MOTOR_TEMPERATURE_THRESHOLD,MOTOR_TEMPERATURE_MAX,int32_temp_current_target,0); //ramp down power with temperature to avoid overheating the motor
 #if(INT_TEMP_25)
-			MS.i_q_setpoint=map(MS.int_Temperature, 70,80,MS.i_q_setpoint,0); //ramp down power with processor temperatur to avoid overheating the controller
+			MS.i_q_setpoint=map(MS.int_Temperature, CONTROLLER_TEMPERATURE_THRESHOLD,CONTROLLER_TEMPERATURE_MAX,MS.i_q_setpoint,0); //ramp down power with processor temperatur to avoid overheating the controller
 #endif
 
 			//auto KV detect
@@ -1547,10 +1558,10 @@ int main(void)
 
 		huart1.Instance = USART1;
 
-#if ((DISPLAY_TYPE & DISPLAY_TYPE_KINGMETER) ||DISPLAY_TYPE==DISPLAY_TYPE_KUNTENG||DISPLAY_TYPE==DISPLAY_TYPE_EBiCS)
+#if ((DISPLAY_TYPE & DISPLAY_TYPE_KINGMETER) ||DISPLAY_TYPE==DISPLAY_TYPE_KUNTENG||DISPLAY_TYPE==DISPLAY_TYPE_EBiCS||DISPLAY_TYPE==DISPLAY_TYPE_NO2 || DISPLAY_TYPE==DISPLAY_TYPE_BAFANG_850_860)
 		huart1.Init.BaudRate = 9600;
-#elif (DISPLAY_TYPE == DISPLAY_TYPE_BAFANG)
-		huart1.Init.BaudRate = 1200;
+#elif (DISPLAY_TYPE == DISPLAY_TYPE_BAFANG_LCD)
+		huart1.Init.BaudRate = 1200; 
 #else
 		huart1.Init.BaudRate = 56000;
 #endif
@@ -1999,7 +2010,7 @@ int main(void)
 		KingMeter_Init (&KM);
 #endif
 
-#if (DISPLAY_TYPE == DISPLAY_TYPE_BAFANG)
+#if (DISPLAY_TYPE & DISPLAY_TYPE_BAFANG)
 		Bafang_Init (&BF);
 #endif
 
@@ -2011,6 +2022,9 @@ int main(void)
 		//       ebics_init();
 #endif
 
+#if (DISPLAY_TYPE == DISPLAY_TYPE_NO2)
+	No2_Init(&No2);
+#endif
 	}
 
 	void get_internal_temp_offset(void){
@@ -2024,10 +2038,61 @@ int main(void)
 		EE_WriteVariable(EEPROM_INT_TEMP_V25,temp>>5);
 		HAL_FLASH_Lock();
 	}
+#if (DISPLAY_TYPE == DISPLAY_TYPE_NO2)
+	void No2_update(void)
+	{
+		/* Prepare Tx parameters */
+
+#if (SPEEDSOURCE  == EXTERNAL)
+		No2.Tx.Wheeltime_ms = ((MS.Speed>>3)*PULSES_PER_REVOLUTION); //>>3 because of 8 kHz counter frequency, so 8 tics per ms
+#else
+		if(__HAL_TIM_GET_COUNTER(&htim2) < 12000)
+		{
+			No2.Tx.Wheeltime_ms = (MS.Speed*GEAR_RATIO*6)>>9; //>>9 because of 500kHZ timer2 frequency, 512 tics per ms should be OK *6 because of 6 hall interrupts per electric revolution.
+
+		}
+		else
+		{
+			No2.Tx.Wheeltime_ms = 64000;
+		}
+
+#endif
+		if(MS.Temperature>MOTOR_TEMPERATURE_MAX) No2.Tx.Error = 7;  //motor failure
+		else if(MS.int_Temperature>CONTROLLER_TEMPERATURE_MAX)No2.Tx.Error = 9; //controller failure
+		else No2.Tx.Error = 0; //no failure
 
 
+		No2.Tx.Current_x10 = (uint16_t) (MS.Battery_Current/100); //MS.Battery_Current is in mA
+		No2.Tx.BrakeActive=brake_flag;
+
+		/* Apply Rx parameters */
+
+		MS.assist_level = No2.Rx.AssistLevel;
+
+		if(!No2.Rx.Headlight)
+		{
+			HAL_GPIO_WritePin(LIGHT_GPIO_Port, LIGHT_Pin, GPIO_PIN_RESET);
+
+		}
+		else // KM_HEADLIGHT_ON, KM_HEADLIGHT_LOW, KM_HEADLIGHT_HIGH
+		{
+			HAL_GPIO_WritePin(LIGHT_GPIO_Port, LIGHT_Pin, GPIO_PIN_SET);
+
+		}
 
 
+		if(No2.Rx.PushAssist)
+		{
+			ui8_Push_Assist_flag=1;
+		}
+		else
+		{
+			ui8_Push_Assist_flag=0;
+		}
+
+	}
+
+#endif
 
 #if (DISPLAY_TYPE & DISPLAY_TYPE_KINGMETER || DISPLAY_TYPE & DISPLAY_TYPE_DEBUG)
 	void kingmeter_update(void)
@@ -2096,6 +2161,8 @@ int main(void)
 		{
 			ui8_Push_Assist_flag=0;
 		}
+//	    if( KM.Settings.Reverse)i8_direction = -1;
+//	    else i8_direction = 1;
 		//    MP.speedLimit=KM.Rx.SPEEDMAX_Limit;
 		//    MP.battery_current_max = KM.Rx.CUR_Limit_mA;
 
@@ -2105,18 +2172,19 @@ int main(void)
 
 #endif
 
-#if (DISPLAY_TYPE == DISPLAY_TYPE_BAFANG)
+#if (DISPLAY_TYPE & DISPLAY_TYPE_BAFANG)
 	void bafang_update(void)
 	{
 		/* Prepare Tx parameters */
 
-		if(MS.Voltage*CAL_BAT_V>BATTERY_LEVEL_5)battery_percent_fromcapacity=95;
-		else if(MS.Voltage*CAL_BAT_V>BATTERY_LEVEL_4)battery_percent_fromcapacity=80;
-		else if(MS.Voltage*CAL_BAT_V>BATTERY_LEVEL_3)battery_percent_fromcapacity=50;
-		else if(MS.Voltage*CAL_BAT_V>BATTERY_LEVEL_2)battery_percent_fromcapacity=30;
-		else if(MS.Voltage*CAL_BAT_V>BATTERY_LEVEL_1)battery_percent_fromcapacity=20;
-		else battery_percent_fromcapacity=5;
+		/* if(MS.Voltage*CAL_BAT_V>BATTERY_LEVEL_5)battery_percent_fromcapacity=95; */
+		/* else if(MS.Voltage*CAL_BAT_V>BATTERY_LEVEL_4)battery_percent_fromcapacity=80; */
+		/* else if(MS.Voltage*CAL_BAT_V>BATTERY_LEVEL_3)battery_percent_fromcapacity=50; */
+		/* else if(MS.Voltage*CAL_BAT_V>BATTERY_LEVEL_2)battery_percent_fromcapacity=30; */
+		/* else if(MS.Voltage*CAL_BAT_V>BATTERY_LEVEL_1)battery_percent_fromcapacity=20; */
+		/* else battery_percent_fromcapacity=5; */
 
+        battery_percent_fromcapacity = ((((MS.Voltage * CAL_BAT_V) - (BATTERY_LEVEL_1)) * 100) / ((BATTERY_LEVEL_5 - BATTERY_LEVEL_1)));
 
 		BF.Tx.Battery = battery_percent_fromcapacity;
 
@@ -2128,7 +2196,7 @@ int main(void)
 		else BF.Tx.Speed = 0;
 
 #else
-		if(__HAL_TIM_GET_COUNTER(&htim2) < 12000)
+		if(__HAL_TIM_GET_COUNTER(&htim2) < 12000 && MS.system_state != Stop)
 		{
 			BF.Tx.Speed =(internal_tics_to_speedx100(MS.Speed)*20)>>8; //factor is *20/256, found empiric
 
@@ -2139,11 +2207,12 @@ int main(void)
 		}
 #endif
 
-		BF.Tx.Power = (MS.Battery_Current/500)&0xFF; // Unit: 1 digit --> 0.5 A, MS.Battery_Current is in mA
+        if (MS.Battery_Current < 0) BF.Tx.Power = MS.Battery_Current*-1 > 0 && MS.Battery_Current*-1 < 500 ? 1 : ((MS.Battery_Current*-1)/500);
+        else BF.Tx.Power = MS.Battery_Current > 0 && MS.Battery_Current < 500 ? 1 : (MS.Battery_Current/500); // Unit: 1 digit --> 0.5 A, MS.Battery_Current is in mA
 
 
 		/* Receive Rx parameters/settings and send Tx parameters */
-		Bafang_Service(&BF,1);
+		Bafang_Service(&BF,1, &MS);
 
 
 
@@ -2248,6 +2317,10 @@ int main(void)
 
 
 	}
+
+    uint8_t brake_is_set(void) {
+        return !HAL_GPIO_ReadPin(Brake_GPIO_Port, Brake_Pin) || (uint16_mapped_BRAKE > 0);
+    }
 	uint8_t throttle_is_set(void){
 		if(uint16_mapped_throttle > 0)
 		{
